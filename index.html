@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mi Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f2f2f7;
+  --surface: #ffffff;
+  --surface2: #e8e8ed;
+  --text-primary: #1c1c1e;
+  --text-secondary: #8e8e93;
+  --text-muted: #aeaeb2;
+  --accent: #FF6700;
+  --accent-light: #fff0e6;
+  --accent2: #007AFF;
+  --num-bg: #ffffff;
+  --num-shadow: #c8c8cc;
+  --op-bg: #fff0e6;
+  --eq-bg: #FF6700;
+  --func-bg: #f2f2f7;
+  --tab-active: #ffffff;
+  --tab-inactive: transparent;
+  --danger: #ff3b30;
+  --green: #34c759;
+  --radius: 18px;
+  --btn-radius: 16px;
+}
+.dark {
+  --bg: #1c1c1e;
+  --surface: #2c2c2e;
+  --surface2: #3a3a3c;
+  --text-primary: #ffffff;
+  --text-secondary: #aeaeb2;
+  --text-muted: #636366;
+  --accent: #FF6700;
+  --accent-light: #3a2010;
+  --accent2: #0A84FF;
+  --num-bg: #2c2c2e;
+  --num-shadow: #141414;
+  --op-bg: #3a2010;
+  --eq-bg: #FF6700;
+  --func-bg: #3a3a3c;
+  --tab-active: #3a3a3c;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  transition: background 0.3s;
+}
+
+.app {
+  width: 390px;
+  min-height: 100vh;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s;
+}
+
+/* Top Bar */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 0;
+}
+.app-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.dark-toggle {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 3px 3px 8px var(--num-shadow), -2px -2px 6px rgba(255,255,255,0.7);
+  transition: all 0.2s;
+}
+.dark .dark-toggle { box-shadow: 3px 3px 8px #111, -2px -2px 6px rgba(255,255,255,0.05); }
+
+/* Mode Tabs */
+.tabs {
+  display: flex;
+  margin: 14px 16px 0;
+  background: var(--surface2);
+  border-radius: 12px;
+  padding: 3px;
+}
+.tab {
+  flex: 1;
+  padding: 8px 4px;
+  border: none;
+  background: var(--tab-inactive);
+  border-radius: 10px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.3px;
+}
+.tab.active {
+  background: var(--tab-active);
+  color: var(--accent);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Display */
+.display-wrap {
+  margin: 14px 16px 0;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 16px 20px 14px;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  box-shadow: 4px 4px 12px var(--num-shadow), -3px -3px 8px rgba(255,255,255,0.9);
+  transition: background 0.3s, box-shadow 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.dark .display-wrap { box-shadow: 4px 4px 12px #111, -2px -2px 6px rgba(255,255,255,0.03); }
+
+.history-scroll {
+  max-height: 56px;
+  overflow-y: auto;
+  margin-bottom: 6px;
+}
+.history-scroll::-webkit-scrollbar { display: none; }
+.hist-line {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: right;
+  line-height: 1.6;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.hist-line:hover { color: var(--text-secondary); }
+
+.expr-line {
+  font-size: 15px;
+  color: var(--text-secondary);
+  text-align: right;
+  min-height: 22px;
+  word-break: break-all;
+  line-height: 1.4;
+  margin-bottom: 4px;
+  transition: color 0.3s;
+}
+
+.main-input {
+  font-size: 44px;
+  font-weight: 300;
+  color: var(--text-primary);
+  text-align: right;
+  word-break: break-all;
+  line-height: 1.1;
+  outline: none;
+  min-height: 52px;
+  caret-color: var(--accent);
+  transition: font-size 0.15s, color 0.3s;
+}
+.main-input.small { font-size: 28px; }
+.main-input.xsmall { font-size: 20px; }
+.main-input.error { color: var(--danger); font-size: 18px; }
+
+.preview-line {
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--text-muted);
+  text-align: right;
+  min-height: 28px;
+  margin-top: 4px;
+  transition: color 0.2s, opacity 0.2s;
+}
+.preview-line.has-result { color: var(--accent); opacity: 0.8; }
+
+/* Unit Converter */
+.unit-panel {
+  padding: 6px 4px;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+}
+.unit-panel.active { display: flex; }
+.unit-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.unit-select {
+  flex: 1;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: none;
+  border-radius: 12px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  box-shadow: 3px 3px 8px var(--num-shadow), -2px -2px 6px rgba(255,255,255,0.8);
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  -webkit-appearance: none;
+}
+.dark .unit-select { box-shadow: 3px 3px 8px #111, -2px -2px 6px rgba(255,255,255,0.03); }
+.unit-input-field {
+  width: 120px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: right;
+  outline: none;
+  transition: all 0.2s;
+  box-shadow: 3px 3px 8px var(--num-shadow), -2px -2px 6px rgba(255,255,255,0.8);
+}
+.dark .unit-input-field { box-shadow: 3px 3px 8px #111, -2px -2px 6px rgba(255,255,255,0.03); }
+.unit-input-field:focus { border-color: var(--accent); }
+.unit-result-field {
+  width: 120px;
+  padding: 10px 12px;
+  background: var(--accent-light);
+  border: none;
+  border-radius: 12px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+  text-align: right;
+}
+.unit-swap {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--surface2);
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.unit-swap:active { transform: rotate(180deg); }
+.unit-cat-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.unit-cat-btn {
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: none;
+  background: var(--surface2);
+  color: var(--text-secondary);
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.unit-cat-btn.active { background: var(--accent); color: white; }
+
+/* Buttons Area */
+.buttons-wrap {
+  flex: 1;
+  padding: 10px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Sci extra row */
+.sci-row {
+  display: none;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.sci-row.active { display: grid; }
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+/* Buttons */
+.btn {
+  height: 68px;
+  border: none;
+  border-radius: var(--btn-radius);
+  font-family: 'Nunito', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.12s;
+  position: relative;
+  user-select: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Neumorphic number buttons */
+.btn-num {
+  background: var(--num-bg);
+  color: var(--text-primary);
+  box-shadow: 5px 5px 12px var(--num-shadow), -3px -3px 8px rgba(255,255,255,0.95);
+}
+.dark .btn-num { box-shadow: 5px 5px 12px #111, -3px -3px 8px rgba(255,255,255,0.04); }
+.btn-num:active {
+  box-shadow: 2px 2px 6px var(--num-shadow), -1px -1px 4px rgba(255,255,255,0.9), inset 2px 2px 6px var(--num-shadow);
+  transform: scale(0.96);
+}
+
+.btn-op {
+  background: var(--op-bg);
+  color: var(--accent);
+  font-size: 24px;
+  box-shadow: 5px 5px 12px var(--num-shadow), -3px -3px 8px rgba(255,255,255,0.95);
+}
+.dark .btn-op { box-shadow: 5px 5px 12px #111, -3px -3px 8px rgba(255,255,255,0.04); }
+.btn-op:active {
+  box-shadow: 2px 2px 6px var(--num-shadow), inset 2px 2px 6px rgba(0,0,0,0.1);
+  transform: scale(0.96);
+}
+
+.btn-eq {
+  background: var(--eq-bg);
+  color: #ffffff;
+  font-size: 26px;
+  box-shadow: 5px 5px 16px rgba(255,103,0,0.4), -2px -2px 8px rgba(255,255,255,0.2);
+}
+.btn-eq:active { transform: scale(0.95); box-shadow: 2px 2px 8px rgba(255,103,0,0.3); }
+
+.btn-func {
+  background: var(--func-bg);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  box-shadow: 5px 5px 12px var(--num-shadow), -3px -3px 8px rgba(255,255,255,0.95);
+  height: 56px;
+}
+.dark .btn-func { box-shadow: 5px 5px 12px #111, -3px -3px 8px rgba(255,255,255,0.04); }
+.btn-func:active { transform: scale(0.96); }
+
+.btn-clear {
+  background: var(--func-bg);
+  color: var(--danger);
+  font-size: 17px;
+  font-weight: 800;
+  box-shadow: 5px 5px 12px var(--num-shadow), -3px -3px 8px rgba(255,255,255,0.95);
+}
+.dark .btn-clear { box-shadow: 5px 5px 12px #111, -3px -3px 8px rgba(255,255,255,0.04); }
+.btn-clear:active { transform: scale(0.96); }
+
+.btn-del {
+  background: var(--func-bg);
+  color: var(--text-primary);
+  font-size: 20px;
+  box-shadow: 5px 5px 12px var(--num-shadow), -3px -3px 8px rgba(255,255,255,0.95);
+}
+.dark .btn-del { box-shadow: 5px 5px 12px #111, -3px -3px 8px rgba(255,255,255,0.04); }
+.btn-del:active { transform: scale(0.96); }
+
+.btn-zero { grid-column: span 2; justify-content: flex-start; padding-left: 28px; }
+
+.row-gap { height: 8px; }
+
+/* Ripple */
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.btn:active::after { opacity: 1; transition: opacity 0s; }
+
+/* Animations */
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+.preview-line { animation: fadeIn 0.15s ease; }
+
+@media (max-width: 400px) {
+  .app { width: 100vw; }
+  .btn { height: 62px; }
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <span class="app-title">Calculator</span>
+    <button class="dark-toggle" onclick="toggleDark()" id="dark-btn">🌙</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="setMode('basic')" id="tab-basic">Basic</button>
+    <button class="tab" onclick="setMode('sci')" id="tab-sci">Scientific</button>
+    <button class="tab" onclick="setMode('unit')" id="tab-unit">Converter</button>
+  </div>
+
+  <!-- Display -->
+  <div class="display-wrap" id="display-wrap">
+    <div class="history-scroll" id="hist-scroll"></div>
+    <div class="expr-line" id="expr-line"></div>
+    <div class="main-input" id="main-input" contenteditable="true" spellcheck="false">0</div>
+    <div class="preview-line" id="preview-line"></div>
+
+    <!-- Unit Converter Panel (inside display area) -->
+    <div class="unit-panel" id="unit-panel">
+      <div class="unit-cat-tabs" id="unit-cat-tabs">
+        <button class="unit-cat-btn active" onclick="setUnitCat('length')">Length</button>
+        <button class="unit-cat-btn" onclick="setUnitCat('area')">Area</button>
+        <button class="unit-cat-btn" onclick="setUnitCat('weight')">Weight</button>
+        <button class="unit-cat-btn" onclick="setUnitCat('temp')">Temp</button>
+      </div>
+      <div class="unit-row">
+        <select class="unit-select" id="unit-from" onchange="doConvert()"></select>
+        <button class="unit-swap" onclick="swapUnits()">⇄</button>
+        <select class="unit-select" id="unit-to" onchange="doConvert()"></select>
+      </div>
+      <div class="unit-row">
+        <input class="unit-input-field" id="unit-in" type="number" value="1" oninput="doConvert()" placeholder="Enter value"/>
+        <div style="flex:1;text-align:center;color:var(--text-muted);font-size:20px;">→</div>
+        <div class="unit-result-field" id="unit-out">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Buttons -->
+  <div class="buttons-wrap" id="buttons-wrap">
+
+    <!-- Sci row (hidden by default) -->
+    <div class="sci-row" id="sci-row">
+      <button class="btn btn-func" onclick="sciFunc('sin')">sin</button>
+      <button class="btn btn-func" onclick="sciFunc('cos')">cos</button>
+      <button class="btn btn-func" onclick="sciFunc('tan')">tan</button>
+      <button class="btn btn-func" onclick="sciFunc('log')">log</button>
+      <button class="btn btn-func" onclick="sciFunc('ln')">ln</button>
+      <button class="btn btn-func" onclick="sciFunc('sqrt')">√x</button>
+      <button class="btn btn-func" onclick="sciFunc('cbrt')">∛x</button>
+      <button class="btn btn-func" onclick="insertStr('^')">xʸ</button>
+      <button class="btn btn-func" onclick="sciFunc('fact')">n!</button>
+      <button class="btn btn-func" onclick="insertStr('π')">π</button>
+    </div>
+    <div class="row-gap"></div>
+
+    <!-- Standard 4-col grid -->
+    <div class="grid-4" id="main-grid">
+      <!-- Row 1 -->
+      <button class="btn btn-clear" id="clear-btn" onmousedown="startClearHold()" onmouseup="endClearHold()" ontouchstart="startClearHold()" ontouchend="endClearHold()">C</button>
+      <button class="btn btn-func" onclick="insertStr('(')" style="font-size:18px;color:var(--accent2)">(  )</button>
+      <button class="btn btn-func" onclick="calcPercent()" style="font-size:20px;color:var(--text-secondary)">%</button>
+      <button class="btn btn-op" onclick="insertOp('/')">÷</button>
+
+      <!-- Row 2 -->
+      <button class="btn btn-num" onclick="insertNum('7')">7</button>
+      <button class="btn btn-num" onclick="insertNum('8')">8</button>
+      <button class="btn btn-num" onclick="insertNum('9')">9</button>
+      <button class="btn btn-op" onclick="insertOp('×')">×</button>
+
+      <!-- Row 3 -->
+      <button class="btn btn-num" onclick="insertNum('4')">4</button>
+      <button class="btn btn-num" onclick="insertNum('5')">5</button>
+      <button class="btn btn-num" onclick="insertNum('6')">6</button>
+      <button class="btn btn-op" onclick="insertOp('−')">−</button>
+
+      <!-- Row 4 -->
+      <button class="btn btn-num" onclick="insertNum('1')">1</button>
+      <button class="btn btn-num" onclick="insertNum('2')">2</button>
+      <button class="btn btn-num" onclick="insertNum('3')">3</button>
+      <button class="btn btn-op" onclick="insertOp('+')">+</button>
+
+      <!-- Row 5 -->
+      <button class="btn btn-num btn-zero" onclick="insertNum('0')">0</button>
+      <button class="btn btn-num" onclick="insertDot()">.</button>
+      <button class="btn btn-eq" onclick="calculate()">=</button>
+    </div>
+
+    <!-- Del row at bottom -->
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn btn-del" style="flex:1;height:48px;font-size:16px" onclick="delLast()">⌫ Delete</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── State ───────────────────────────────────────────
+let expr = '';
+let history = [];
+let mode = 'basic';
+let isDark = false;
+let clearTimer = null;
+let unitCat = 'length';
+
+const mainInput = document.getElementById('main-input');
+const previewLine = document.getElementById('preview-line');
+const exprLine = document.getElementById('expr-line');
+const histScroll = document.getElementById('hist-scroll');
+
+// ─── Display helpers ──────────────────────────────────
+function setDisplay(val) {
+  mainInput.className = 'main-input';
+  const len = String(val).length;
+  if (len > 16) mainInput.classList.add('xsmall');
+  else if (len > 10) mainInput.classList.add('small');
+  mainInput.textContent = val;
+  expr = String(val);
+}
+
+function getDisplay() {
+  return mainInput.textContent.trim();
+}
+
+function setPreview(val) {
+  previewLine.textContent = val ? '= ' + val : '';
+  previewLine.className = 'preview-line' + (val ? ' has-result' : '');
+}
+
+function setExpr(val) {
+  exprLine.textContent = val;
+}
+
+function addHistory(e, r) {
+  history.unshift({ e, r });
+  if (history.length > 8) history.pop();
+  renderHistory();
+}
+
+function renderHistory() {
+  histScroll.innerHTML = history.map(h =>
+    `<div class="hist-line" onclick="useHist('${h.r}')">${h.e} = <b>${h.r}</b></div>`
+  ).join('');
+}
+
+function useHist(val) {
+  setDisplay(val);
+  setPreview('');
+  setExpr('');
+}
+
+// ─── Safe Eval ────────────────────────────────────────
+function safeEval(str) {
+  try {
+    let s = str
+      .replace(/×/g, '*')
+      .replace(/÷/g, '/')
+      .replace(/−/g, '-')
+      .replace(/π/g, String(Math.PI))
+      .replace(/\^/g, '**');
+
+    // Auto close open parens
+    const opens = (s.match(/\(/g)||[]).length;
+    const closes = (s.match(/\)/g)||[]).length;
+    for (let i = 0; i < opens - closes; i++) s += ')';
+
+    if (/[+\-*/]{2,}/.test(s.replace(/\*\*/g,'§').replace(/[+\-*/]{2,}/,'').replace(/§/g,'**'))) return null;
+    if (!s || /[+\-*/]$/.test(s)) return null;
+
+    const result = Function('"use strict"; return (' + s + ')')();
+    if (!isFinite(result) || isNaN(result)) return null;
+    const rounded = parseFloat(result.toPrecision(12));
+    return String(rounded);
+  } catch (e) { return null; }
+}
+
+// ─── Real-time preview ────────────────────────────────
+function livePreview() {
+  const cur = getDisplay();
+  if (cur === '0' || cur === '') { setPreview(''); return; }
+  const r = safeEval(cur);
+  if (r !== null && r !== cur) setPreview(r);
+  else setPreview('');
+}
+
+mainInput.addEventListener('input', () => {
+  expr = getDisplay();
+  livePreview();
+});
+
+mainInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); calculate(); }
+  if (e.key === 'Escape') { clearAll(); }
+});
+
+// ─── Input functions ──────────────────────────────────
+function insertNum(n) {
+  let cur = getDisplay();
+  if (cur === '0') cur = n;
+  else cur += n;
+  setDisplay(cur);
+  livePreview();
+}
+
+function insertStr(s) {
+  if (s === '(') {
+    let cur = getDisplay();
+    const opens = (cur.match(/\(/g)||[]).length;
+    const closes = (cur.match(/\)/g)||[]).length;
+    if (cur === '0') { setDisplay('('); livePreview(); return; }
+    if (opens > closes && /[\d)]$/.test(cur)) cur += ')';
+    else cur += '(';
+    setDisplay(cur);
+  } else {
+    let cur = getDisplay();
+    if (cur === '0') cur = s;
+    else cur += s;
+    setDisplay(cur);
+  }
+  livePreview();
+}
+
+function insertOp(op) {
+  let cur = getDisplay();
+  if (cur === '0' && op === '−') { setDisplay('−'); livePreview(); return; }
+  if (/[×÷+−]$/.test(cur)) cur = cur.slice(0, -1);
+  cur += op;
+  setDisplay(cur);
+  livePreview();
+}
+
+function insertDot() {
+  let cur = getDisplay();
+  const parts = cur.split(/[×÷+−]/);
+  const last = parts[parts.length - 1];
+  if (last.includes('.')) return;
+  if (!last || /[×÷+−]$/.test(cur)) cur += '0';
+  setDisplay(cur + '.');
+  livePreview();
+}
+
+function delLast() {
+  let cur = getDisplay();
+  if (cur.length <= 1 || cur === '0') { setDisplay('0'); setPreview(''); return; }
+  setDisplay(cur.slice(0, -1));
+  livePreview();
+}
+
+let justCalc = false;
+
+function clearAll() {
+  setDisplay('0');
+  setPreview('');
+  setExpr('');
+  justCalc = false;
+}
+
+function startClearHold() {
+  clearTimer = setTimeout(() => { clearAll(); history = []; renderHistory(); }, 800);
+}
+function endClearHold() {
+  if (clearTimer) { clearTimeout(clearTimer); clearTimer = null; }
+  if (!justCalc) delLast();
+  else { clearAll(); }
+}
+
+function calcPercent() {
+  let cur = getDisplay();
+  try {
+    const val = Function('"use strict"; return (' + cur.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/π/g,String(Math.PI)) + ')')();
+    setDisplay(String(parseFloat((val/100).toPrecision(10))));
+    livePreview();
+  } catch(e) {}
+}
+
+function calculate() {
+  const cur = getDisplay();
+  if (cur === '0' || !cur) return;
+  const res = safeEval(cur);
+  if (res !== null) {
+    addHistory(cur, res);
+    setExpr(cur + ' =');
+    setDisplay(res);
+    setPreview('');
+    justCalc = true;
+  } else {
+    mainInput.className = 'main-input error';
+    mainInput.textContent = 'Invalid Expression';
+    setTimeout(clearAll, 1500);
+  }
+}
+
+// ─── Scientific ───────────────────────────────────────
+function sciFunc(fn) {
+  let cur = getDisplay();
+  let val;
+  try {
+    val = Function('"use strict"; return (' + cur.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/π/g,String(Math.PI)) + ')')();
+  } catch(e) { val = 0; }
+
+  let res;
+  const label = fn;
+  switch(fn) {
+    case 'sin': res = Math.sin(val * Math.PI / 180); break;
+    case 'cos': res = Math.cos(val * Math.PI / 180); break;
+    case 'tan': res = Math.tan(val * Math.PI / 180); break;
+    case 'log': res = Math.log10(val); break;
+    case 'ln':  res = Math.log(val); break;
+    case 'sqrt': res = Math.sqrt(val); break;
+    case 'cbrt': res = Math.cbrt(val); break;
+    case 'fact': res = factorial(val); break;
+  }
+  const r = String(parseFloat(res.toPrecision(10)));
+  addHistory(fn + '(' + cur + ')', r);
+  setExpr(fn + '(' + cur + ') =');
+  setDisplay(r);
+  setPreview('');
+  justCalc = true;
+}
+
+function factorial(n) {
+  n = Math.round(n);
+  if (n < 0 || n > 20) return NaN;
+  let r = 1;
+  for (let i = 2; i <= n; i++) r *= i;
+  return r;
+}
+
+// ─── Modes ────────────────────────────────────────────
+function setMode(m) {
+  mode = m;
+  ['basic','sci','unit'].forEach(id => {
+    document.getElementById('tab-' + id).classList.toggle('active', id === m);
+  });
+
+  const sciRow = document.getElementById('sci-row');
+  const unitPanel = document.getElementById('unit-panel');
+  const mainGrid = document.getElementById('main-grid');
+  const buttonsWrap = document.getElementById('buttons-wrap');
+  const displayWrap = document.getElementById('display-wrap');
+  const previewEl = document.getElementById('preview-line');
+  const exprEl = document.getElementById('expr-line');
+  const mainInputEl = document.getElementById('main-input');
+  const histEl = document.getElementById('hist-scroll');
+
+  if (m === 'sci') {
+    sciRow.classList.add('active');
+    unitPanel.classList.remove('active');
+    mainInputEl.style.display = '';
+    previewEl.style.display = '';
+    exprEl.style.display = '';
+    histEl.style.display = '';
+    buttonsWrap.style.display = 'flex';
+  } else if (m === 'unit') {
+    sciRow.classList.remove('active');
+    unitPanel.classList.add('active');
+    mainInputEl.style.display = 'none';
+    previewEl.style.display = 'none';
+    exprEl.style.display = 'none';
+    histEl.style.display = 'none';
+    buttonsWrap.style.display = 'none';
+    displayWrap.style.minHeight = '220px';
+    populateUnitSelects();
+    doConvert();
+  } else {
+    sciRow.classList.remove('active');
+    unitPanel.classList.remove('active');
+    mainInputEl.style.display = '';
+    previewEl.style.display = '';
+    exprEl.style.display = '';
+    histEl.style.display = '';
+    buttonsWrap.style.display = 'flex';
+    displayWrap.style.minHeight = '160px';
+  }
+}
+
+// ─── Dark Mode ────────────────────────────────────────
+function toggleDark() {
+  isDark = !isDark;
+  document.getElementById('app').classList.toggle('dark', isDark);
+  document.getElementById('dark-btn').textContent = isDark ? '☀️' : '🌙';
+}
+
+// ─── Unit Converter ───────────────────────────────────
+const units = {
+  length: ['mm','cm','m','km','inch','foot','yard','mile'],
+  area: ['mm²','cm²','m²','km²','sq inch','sq foot','acre','hectare'],
+  weight: ['mg','g','kg','tonne','oz','lb','stone'],
+  temp: ['Celsius','Fahrenheit','Kelvin']
+};
+
+const convFactors = {
+  length: { mm:1, cm:10, m:1000, km:1e6, inch:25.4, foot:304.8, yard:914.4, mile:1609344 },
+  area: { 'mm²':1, 'cm²':100, 'm²':1e6, 'km²':1e12, 'sq inch':645.16, 'sq foot':92903, acre:4046856196/1000, hectare:1e10 },
+  weight: { mg:1, g:1000, kg:1e6, tonne:1e9, oz:28349.5, lb:453592, stone:6350293 },
+  temp: null
+};
+
+function setUnitCat(cat) {
+  unitCat = cat;
+  document.querySelectorAll('.unit-cat-btn').forEach((b,i) => {
+    b.classList.toggle('active', b.textContent.toLowerCase() === cat);
+  });
+  populateUnitSelects();
+  doConvert();
+}
+
+function populateUnitSelects() {
+  const fromSel = document.getElementById('unit-from');
+  const toSel = document.getElementById('unit-to');
+  const list = units[unitCat];
+  fromSel.innerHTML = list.map(u => `<option>${u}</option>`).join('');
+  toSel.innerHTML = list.map(u => `<option>${u}</option>`).join('');
+  if (list.length > 1) toSel.selectedIndex = 1;
+}
+
+function doConvert() {
+  const val = parseFloat(document.getElementById('unit-in').value);
+  const from = document.getElementById('unit-from').value;
+  const to = document.getElementById('unit-to').value;
+  const outEl = document.getElementById('unit-out');
+
+  if (isNaN(val)) { outEl.textContent = '—'; return; }
+
+  let result;
+  if (unitCat === 'temp') {
+    if (from === 'Celsius' && to === 'Fahrenheit') result = val * 9/5 + 32;
+    else if (from === 'Celsius' && to === 'Kelvin') result = val + 273.15;
+    else if (from === 'Fahrenheit' && to === 'Celsius') result = (val - 32) * 5/9;
+    else if (from === 'Fahrenheit' && to === 'Kelvin') result = (val - 32) * 5/9 + 273.15;
+    else if (from === 'Kelvin' && to === 'Celsius') result = val - 273.15;
+    else if (from === 'Kelvin' && to === 'Fahrenheit') result = (val - 273.15) * 9/5 + 32;
+    else result = val;
+  } else {
+    const f = convFactors[unitCat];
+    result = val * f[from] / f[to];
+  }
+
+  outEl.textContent = parseFloat(result.toPrecision(8)).toString();
+}
+
+function swapUnits() {
+  const fromSel = document.getElementById('unit-from');
+  const toSel = document.getElementById('unit-to');
+  const tmp = fromSel.value;
+  fromSel.value = toSel.value;
+  toSel.value = tmp;
+  doConvert();
+}
+
+// Init
+setMode('basic');
+</script>
+</body>
+</html>
