@@ -1,25 +1,12 @@
 {
-  "name": "Zyntix Calculator",
-  "short_name": "Zyntix",
-  "description": "Zyntix Advanced Calculator with Scientific Mode and Unit Converter",
-  "start_url": "/Zyntix-calculator/",
-  "scope": "/Zyntix-calculator/",
-  "display": "standalone",
   "background_color": "#f2f2f7",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Zyntix Calculator",
+  "orientation": "portrait",
+  "scope": "/Zyntix-calculator/",
+  "short_name": "Calculator",
+  "start_url": "/Zyntix-calculator/",
   "theme_color": "#FF6700",
-  "orientation": "portrait-primary",
-  "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ]
+  "description": "Advanced Calculator with Scientific Mode"
 }
