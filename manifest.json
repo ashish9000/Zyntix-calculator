@@ -5,8 +5,22 @@
   "name": "Zyntix Calculator",
   "orientation": "portrait",
   "scope": "/Zyntix-calculator/",
-  "short_name": "Calculator",
+  "short_name": "Zyntix",
   "start_url": "/Zyntix-calculator/",
   "theme_color": "#FF6700",
-  "description": "Advanced Calculator with Scientific Mode"
+  "description": "Advanced Calculator with Scientific Mode",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }
